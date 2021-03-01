@@ -1,0 +1,24 @@
+{
+  "env": {
+    "compiler": {
+      "bit.envs/compilers/react-typescript@3.1.70": {
+        "rawConfig": {
+          "tsconfig": {
+            "compilerOptions": {
+              "lib": ["es6", "dom", "es2017"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "componentsDefaultDirectory": "components/{name}",
+  "packageManager": "yarn",
+  "overrides": {
+    "simple": {
+      "env": {
+        "compiler": "bit.envs/compilers/react"
+      }
+    }
+  }
+}
