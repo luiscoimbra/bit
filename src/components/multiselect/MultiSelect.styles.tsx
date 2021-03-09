@@ -35,7 +35,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     popper: {
       border: "1px solid rgba(27,31,35,.15)",
       boxShadow: "0 3px 12px rgba(27,31,35,.15)",
-      borderRadius: 15,
+      borderRadius: theme.shape.borderRadius,
       padding: theme.spacing(1),
       width: 316,
       zIndex: 1,
@@ -97,6 +97,12 @@ export const useStyles = makeStyles((theme: Theme) =>
     onlyButton: {},
     text: {
       flexGrow: 1,
+    },
+    loading: {
+      textAlign: "center",
+    },
+    selectedLabel: {
+      color: theme.palette.secondary.main,
     },
   })
 );

@@ -1,5 +1,4 @@
-import React, { PropsWithChildren, SyntheticEvent } from "react";
-import { useTheme } from "@material-ui/core/styles";
+import React, { PropsWithChildren, SyntheticEvent, useEffect } from "react";
 import {
   Popper,
   ButtonBase,
@@ -8,6 +7,7 @@ import {
   Box,
   Typography,
   Button,
+  CircularProgress,
 } from "@material-ui/core";
 import { ArrowDropDown, ArrowDropUp, Settings } from "@material-ui/icons";
 import Autocomplete, {
@@ -24,37 +24,37 @@ type Props = {
   selectedLabel?: string;
   selectedLabelPlural?: string;
   emptyLabel?: string;
-  emptySearch?: string;
+  noResultsLabel?: string;
   options: OptionType[];
   selectedOptions?: OptionType[];
+  onChange: (selectedValues: OptionType[]) => void;
+  disabled?: boolean;
+  isLoading?: boolean;
+  error?: boolean;
 };
-
-// type OLDPROPS = {
-//   dataSource: string[];
-//   dataSelected: string[];
-//   fieldName?: string;
-//   onChange: (values: string[]) => void;
-//   isPreview?: boolean;
-//   error?: boolean;
-//   isLoading?: boolean;
-// };
 
 export const MultiSelect = ({
   options,
   selectedOptions = [],
-  emptySearch = "No values",
+  noResultsLabel = "No values",
   selectedLabel = "Selected Item",
   selectedLabelPlural = "Selected Items",
   emptyLabel = "Select items",
+  disabled,
+  isLoading,
+  onChange,
+  error,
 }: PropsWithChildren<Props>) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [value, setValue] = React.useState<OptionType[]>(selectedOptions);
   const [pendingValue, setPendingValue] = React.useState<OptionType[]>([]);
-  const theme = useTheme();
+
+  useEffect(() => {
+    setPendingValue(selectedOptions);
+  }, [selectedOptions]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setPendingValue(value);
+    setPendingValue(pendingValue);
     setAnchorEl(event.currentTarget);
   };
 
@@ -65,7 +65,7 @@ export const MultiSelect = ({
     if (reason === "toggleInput") {
       return;
     }
-    setValue(pendingValue);
+    onChange(pendingValue);
     if (anchorEl) {
       anchorEl.focus();
     }
@@ -81,13 +81,13 @@ export const MultiSelect = ({
 
   const open = Boolean(anchorEl);
   const id = open ? "multiselect" : undefined;
-  const isSelected = Boolean(value.length);
-  const containerText = () =>
-    isSelected
-      ? value.length > 1
-        ? selectedLabelPlural
-        : selectedLabel
-      : emptyLabel;
+  const isSelected = Boolean(pendingValue.length);
+  console.log(pendingValue);
+  const containerText = isSelected
+    ? pendingValue.length > 1
+      ? selectedLabelPlural
+      : selectedLabel
+    : emptyLabel;
 
   return (
     <React.Fragment>
@@ -101,9 +101,9 @@ export const MultiSelect = ({
         >
           <Box className={classes.flexBaseContainer}>
             <Box flexGrow={1}>
-              <Typography>
-                {isSelected && `${value.length} `}
-                {containerText()}
+              <Typography className={isSelected ? classes.selectedLabel : ""}>
+                {isSelected && `${pendingValue.length} `}
+                {containerText}
               </Typography>
             </Box>
             <Box>
@@ -134,29 +134,36 @@ export const MultiSelect = ({
           }}
           value={pendingValue}
           onChange={(event, newValue) => {
-            setPendingValue(newValue);
+            !disabled && setPendingValue(newValue);
           }}
           disableCloseOnSelect
           disablePortal
           renderTags={() => null}
-          noOptionsText={emptySearch}
+          noOptionsText={noResultsLabel}
           renderOption={(option, { selected }) => (
             <React.Fragment>
-              <Checkbox checked={selected} />
+              <Checkbox disabled={disabled} checked={selected} />
               <Typography className={classes.text}>{option.label}</Typography>
-              <ButtonBase
-                disableRipple
-                className={classes.onlyButton}
-                onClick={(event): void => handleSelectOnly(event, option)}
-              >
-                Only
-              </ButtonBase>
+              {!disabled && (
+                <ButtonBase
+                  disableRipple
+                  className={classes.onlyButton}
+                  onClick={(event): void => handleSelectOnly(event, option)}
+                >
+                  Only
+                </ButtonBase>
+              )}
             </React.Fragment>
           )}
-          options={[...new Set([...value, ...options])]}
+          options={[...new Set([...selectedOptions, ...options])]}
           getOptionLabel={(option) => option.label}
           renderInput={(params) => (
             <React.Fragment>
+              {isLoading && (
+                <div className={classes.loading}>
+                  <CircularProgress />
+                </div>
+              )}
               <InputBase
                 ref={params.InputProps.ref}
                 inputProps={params.inputProps}
@@ -171,13 +178,15 @@ export const MultiSelect = ({
                   </Typography>
                 </Box>
                 <Box>
-                  <ButtonBase
-                    className={classes.button}
-                    onClick={handleSelectAll}
-                    disableRipple
-                  >
-                    <Typography>Select All</Typography>
-                  </ButtonBase>
+                  {!disabled && (
+                    <ButtonBase
+                      className={classes.button}
+                      onClick={handleSelectAll}
+                      disableRipple
+                    >
+                      <Typography>Select All</Typography>
+                    </ButtonBase>
+                  )}
                 </Box>
               </Box>
             </React.Fragment>

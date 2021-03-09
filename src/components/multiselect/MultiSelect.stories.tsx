@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MultiSelect } from "./MultiSelect";
 
 export default {
@@ -81,6 +81,19 @@ const labels = [
   },
 ];
 
-export const Default = () => (
-  <MultiSelect options={labels} selectedOptions={[labels[5]]} />
-);
+export const Default = () => {
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 5000);
+  }, []);
+
+  return (
+    <MultiSelect
+      isLoading={loading}
+      options={labels}
+      selectedOptions={[labels[5]]}
+      onChange={console.log}
+    />
+  );
+};
