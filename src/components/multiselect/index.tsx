@@ -9,13 +9,19 @@ import {
   Button,
   CircularProgress,
 } from "@material-ui/core";
-import { ArrowDropDown, ArrowDropUp, Settings } from "@material-ui/icons";
+import {
+  ArrowDropDown,
+  ArrowDropUp,
+  Close,
+  Done,
+  Settings,
+} from "@material-ui/icons";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
 import { useStyles } from "./MultiSelect.styles";
 
-type OptionType = {
+export type OptionType = {
   label: string;
   value: string;
 };
@@ -33,7 +39,7 @@ type Props = {
   error?: boolean;
 };
 
-export const MultiSelect = ({
+const MultiSelect = ({
   options,
   selectedOptions = [],
   noResultsLabel = "No values",
@@ -47,6 +53,7 @@ export const MultiSelect = ({
 }: PropsWithChildren<Props>) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [value, setValue] = React.useState<OptionType[]>([]);
   const [pendingValue, setPendingValue] = React.useState<OptionType[]>([]);
 
   useEffect(() => {
@@ -54,7 +61,7 @@ export const MultiSelect = ({
   }, [selectedOptions]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setPendingValue(pendingValue);
+    setPendingValue(value);
     setAnchorEl(event.currentTarget);
   };
 
@@ -65,6 +72,7 @@ export const MultiSelect = ({
     if (reason === "toggleInput") {
       return;
     }
+    setValue(pendingValue);
     onChange(pendingValue);
     if (anchorEl) {
       anchorEl.focus();
@@ -82,12 +90,20 @@ export const MultiSelect = ({
   const open = Boolean(anchorEl);
   const id = open ? "multiselect" : undefined;
   const isSelected = Boolean(pendingValue.length);
-  console.log(pendingValue);
   const containerText = isSelected
     ? pendingValue.length > 1
       ? selectedLabelPlural
       : selectedLabel
     : emptyLabel;
+
+  const sortedOptions = [...options].sort((a, b) => {
+    // Display the selected labels first.
+    let ai = value.indexOf(a);
+    ai = ai === -1 ? value.length + options.indexOf(a) : ai;
+    let bi = value.indexOf(b);
+    bi = bi === -1 ? value.length + options.indexOf(b) : bi;
+    return ai - bi;
+  });
 
   return (
     <React.Fragment>
@@ -134,15 +150,15 @@ export const MultiSelect = ({
           }}
           value={pendingValue}
           onChange={(event, newValue) => {
-            !disabled && setPendingValue(newValue);
+            setPendingValue(newValue);
           }}
           disableCloseOnSelect
           disablePortal
           renderTags={() => null}
-          noOptionsText={noResultsLabel}
+          noOptionsText={""}
           renderOption={(option, { selected }) => (
             <React.Fragment>
-              <Checkbox disabled={disabled} checked={selected} />
+              <Checkbox disabled={false} checked={selected} />
               <Typography className={classes.text}>{option.label}</Typography>
               {!disabled && (
                 <ButtonBase
@@ -155,11 +171,11 @@ export const MultiSelect = ({
               )}
             </React.Fragment>
           )}
-          options={[...new Set([...selectedOptions, ...options])]}
+          options={sortedOptions}
           getOptionLabel={(option) => option.label}
           renderInput={(params) => (
             <React.Fragment>
-              {isLoading && (
+              {false && (
                 <div className={classes.loading}>
                   <CircularProgress />
                 </div>
@@ -178,7 +194,7 @@ export const MultiSelect = ({
                   </Typography>
                 </Box>
                 <Box>
-                  {!disabled && (
+                  {true && (
                     <ButtonBase
                       className={classes.button}
                       onClick={handleSelectAll}
@@ -196,3 +212,5 @@ export const MultiSelect = ({
     </React.Fragment>
   );
 };
+
+export default MultiSelect;

@@ -11,14 +11,5 @@
         }
       }
     }
-  },
-  "componentsDefaultDirectory": "components/{name}",
-  "packageManager": "yarn",
-  "overrides": {
-    "simple": {
-      "env": {
-        "compiler": "bit.envs/compilers/react"
-      }
-    }
   }
 }

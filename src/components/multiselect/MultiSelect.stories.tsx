@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { MultiSelect } from "./MultiSelect";
+import MultiSelect from ".";
 
 export default {
   title: "MultiSelect",
@@ -92,7 +92,7 @@ export const Default = () => {
     <MultiSelect
       isLoading={loading}
       options={labels}
-      selectedOptions={[labels[5]]}
+      selectedOptions={[]}
       onChange={console.log}
     />
   );
