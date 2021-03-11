@@ -20,9 +20,6 @@ export const useStyles = makeStyles((theme: Theme) =>
     baseContainer: {
       width: 316,
       textTransform: "capitalize",
-      textAlign: "left",
-      justifyContent: "flex-start",
-      paddingRight: 4,
       height: 48,
     },
     arrowDrop: {

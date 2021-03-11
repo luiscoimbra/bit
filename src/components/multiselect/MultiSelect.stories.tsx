@@ -83,6 +83,7 @@ const labels = [
 
 export const Default = () => {
   const [loading, setLoading] = React.useState(true);
+  const [state, setState] = React.useState(labels);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 5000);
@@ -92,8 +93,10 @@ export const Default = () => {
     <MultiSelect
       isLoading={loading}
       options={labels}
-      selectedOptions={[]}
-      onChange={console.log}
+      disabled
+      error
+      selectedOptions={state}
+      onChange={setState}
     />
   );
 };

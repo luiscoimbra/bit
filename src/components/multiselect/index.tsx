@@ -1,4 +1,9 @@
-import React, { PropsWithChildren, SyntheticEvent, useEffect } from "react";
+import React, {
+  PropsWithChildren,
+  ReactNode,
+  SyntheticEvent,
+  useEffect,
+} from "react";
 import {
   Popper,
   ButtonBase,
@@ -8,14 +13,9 @@ import {
   Typography,
   Button,
   CircularProgress,
+  Select,
 } from "@material-ui/core";
-import {
-  ArrowDropDown,
-  ArrowDropUp,
-  Close,
-  Done,
-  Settings,
-} from "@material-ui/icons";
+import { ArrowDropDown, ArrowDropUp } from "@material-ui/icons";
 import Autocomplete, {
   AutocompleteCloseReason,
 } from "@material-ui/lab/Autocomplete";
@@ -66,7 +66,7 @@ const MultiSelect = ({
   };
 
   const handleClose = (
-    event: React.ChangeEvent<{}>,
+    _event: React.ChangeEvent<{}>,
     reason: AutocompleteCloseReason
   ) => {
     if (reason === "toggleInput") {
@@ -108,29 +108,21 @@ const MultiSelect = ({
   return (
     <React.Fragment>
       <div className={classes.root}>
-        <Button
-          aria-describedby={id}
-          variant="outlined"
-          className={classes.baseContainer}
-          disableRipple
+        <Select
           onClick={handleClick}
-        >
-          <Box className={classes.flexBaseContainer}>
-            <Box flexGrow={1}>
-              <Typography className={isSelected ? classes.selectedLabel : ""}>
-                {isSelected && `${pendingValue.length} `}
-                {containerText}
-              </Typography>
-            </Box>
-            <Box>
-              {open ? (
-                <ArrowDropUp className={classes.arrowDrop} />
-              ) : (
-                <ArrowDropDown className={classes.arrowDrop} />
-              )}
-            </Box>
-          </Box>
-        </Button>
+          aria-describedby={id}
+          className={classes.baseContainer}
+          open={false}
+          error={error}
+          variant="outlined"
+          displayEmpty
+          renderValue={(): ReactNode => (
+            <Typography className={isSelected ? classes.selectedLabel : ""}>
+              {isSelected && `${pendingValue.length} `}
+              {containerText}
+            </Typography>
+          )}
+        />
       </div>
       <Popper
         id={id}
@@ -148,17 +140,18 @@ const MultiSelect = ({
             option: classes.option,
             popperDisablePortal: classes.popperDisablePortal,
           }}
+          getOptionDisabled={(option) => disabled}
           value={pendingValue}
-          onChange={(event, newValue) => {
-            setPendingValue(newValue);
+          onChange={(_event, newValue) => {
+            !disabled && setPendingValue(newValue);
           }}
           disableCloseOnSelect
           disablePortal
           renderTags={() => null}
-          noOptionsText={""}
+          noOptionsText={noResultsLabel}
           renderOption={(option, { selected }) => (
             <React.Fragment>
-              <Checkbox disabled={false} checked={selected} />
+              <Checkbox disabled={disabled} checked={selected} />
               <Typography className={classes.text}>{option.label}</Typography>
               {!disabled && (
                 <ButtonBase
@@ -175,7 +168,7 @@ const MultiSelect = ({
           getOptionLabel={(option) => option.label}
           renderInput={(params) => (
             <React.Fragment>
-              {false && (
+              {isLoading && (
                 <div className={classes.loading}>
                   <CircularProgress />
                 </div>
@@ -194,7 +187,7 @@ const MultiSelect = ({
                   </Typography>
                 </Box>
                 <Box>
-                  {true && (
+                  {!disabled && (
                     <ButtonBase
                       className={classes.button}
                       onClick={handleSelectAll}
